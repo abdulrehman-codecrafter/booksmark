@@ -1,13 +1,14 @@
 import { Webhook } from "svix";
 import { headers } from "next/headers";
-import {db} from "../../../db/index"
+import { db } from "@/lib/db";
 import { usersTable } from "@/db/schema";
+import { NextResponse } from "next/server";
 
 export async function POST(req) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
 
   if (!WEBHOOK_SECRET) {
-    throw new Error("CLERK_WEBHOOK_SECRET is missing in environment variables.");
+    return new NextResponse("Missing Clerk Webhook Secret", { status: 500 });
   }
 
   const headerPayload = headers();
@@ -16,7 +17,7 @@ export async function POST(req) {
   const svix_signature = headerPayload.get("svix-signature");
 
   if (!svix_id || !svix_timestamp || !svix_signature) {
-    return new Response("Missing Svix headers", { status: 400 });
+    return new NextResponse("Missing Svix headers", { status: 400 });
   }
 
   const payload = await req.json();
@@ -33,17 +34,17 @@ export async function POST(req) {
     });
   } catch (err) {
     console.error("Webhook verification failed:", err);
-    return new Response("Unauthorized", { status: 400 });
+    return new NextResponse("Unauthorized", { status: 400 });
   }
 
   if (evt.type !== "user.created") {
-    return new Response("Ignored", { status: 200 });
+    return new NextResponse("Ignored", { status: 200 });
   }
 
   const { id, email_addresses, first_name, last_name, image_url } = evt.data;
 
   if (!id || !email_addresses?.length) {
-    return new Response("Missing required user data", { status: 400 });
+    return new NextResponse("Missing required user data", { status: 400 });
   }
 
   try {
@@ -58,8 +59,12 @@ export async function POST(req) {
     console.log(`User created: ${id}`);
   } catch (err) {
     console.error("Database error:", err);
-    return new Response("Database sync error", { status: 500 });
+    return new NextResponse("Database sync error", { status: 500 });
   }
 
-  return new Response("User created successfully", { status: 200 });
+  return new NextResponse("User created successfully", { status: 200 });
+}
+
+export async function GET() {
+  return new NextResponse("Method Not Allowed", { status: 405 });
 }
