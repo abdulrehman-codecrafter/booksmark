@@ -54,14 +54,16 @@ export default function Home() {
                         {books.map((book) => (
                             <div
                                 key={book.id}
-                                className="shadow-md rounded-lg p-4 bg-white w-full md:w-[48%] lg:w-[30%]"
+                                className="shadow-md rounded-lg p-4 bg-white w-full md:w-[48%] lg:w-[30%] flex flex-col justify-between"
                             >
+                                <div>
                                 <h2 className=" text-[16.2px] font-semibold text-gray-800">
                                     {book.title}
                                 </h2>
-                                <p className="text-gray-500 text-sm mb-3 text-wrap">
+                                <p className="text-gray-500 text-sm mb-3  text-balance break-words " >
                                     {book.description || "No description"}
                                 </p>
+                                </div>
                                 <div className="flex items-center justify-between">
                                     <span
                                         className={`py-[2px] text-[13px] w-[90px] rounded-xl flex items-center justify-center gap-1 ${
