@@ -59,7 +59,7 @@ export default function Home() {
                                 <h2 className=" text-[16.2px] font-semibold text-gray-800">
                                     {book.title}
                                 </h2>
-                                <p className="text-gray-500 text-sm mb-3">
+                                <p className="text-gray-500 text-sm mb-3 text-wrap">
                                     {book.description || "No description"}
                                 </p>
                                 <div className="flex items-center justify-between">
