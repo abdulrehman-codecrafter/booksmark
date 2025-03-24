@@ -1,63 +1,95 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useAuth, UserButton } from "@clerk/nextjs";
+import { useBooksContext } from "@/contexts/booksContext";
+import AddBookDialog from "@/components/add-book-dialog";
+import { Trash, Edit, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 export default function Home() {
+    const { books, loading, toggleComplete, deleteBook } = useBooksContext();
+    const [globalLoading, setGlobalLoading] = useState(false);
 
-  const [books, setBooks] = useState([]);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+    const handleToggleComplete = async (id, completed) => {
+        setGlobalLoading(true);
+        await toggleComplete(id, completed);
+        setGlobalLoading(false);
+    };
 
-  useEffect(() => {
-    fetchBooks();
-  }, []);
+    const handleDeleteBook = async (id) => {
+        setGlobalLoading(true);
+        await deleteBook(id);
+        setGlobalLoading(false);
+    };
 
-  async function fetchBooks() {
-    const res = await fetch("/api/books");
-    const data = await res.json();
-    setBooks(data);
-  }
+    return (
+        <div className="p-6 min-h-[100vh] bg-gray-50 relative">
+            {globalLoading && (
+                <div className="absolute inset-0 flex items-center justify-center backdrop-blur-sm z-50">
+                    <Loader2 className="animate-spin text-[#9e9e9e]" size={50} />
+                </div>
+            )}
+            <div className="max-w-7xl mx-auto">
+                <h1 className="text-3xl font-bold text-gray-800 mb-6">
+                    Your Reading List
+                </h1>
 
-  async function addBook() {
-    await fetch("/api/books", { method: "POST", body: JSON.stringify({ title, description }) });
-    setTitle("");
-    setDescription("");
-    fetchBooks();
-  }
+                <div className="mb-6">
+                    <AddBookDialog />
+                </div>
 
-  async function markComplete(id, completed) {
-    await fetch("/api/books", { method: "PATCH", body: JSON.stringify({ id, completed }) });
-    fetchBooks();
-  }
-
-  async function deleteBook(id) {
-    await fetch("/api/books", { method: "DELETE", body: JSON.stringify({ id }) });
-    fetchBooks();
-  }
-
-  return (
-    <main className="p-6 max-w-2xl mx-auto">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">📚 My Book List</h1>
-        <UserButton />
-      </div>
-      
-      <div className="mt-4 flex gap-2">
-        <input className="border p-2 w-full" placeholder="Book title" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <button className="bg-blue-500 text-white px-4 py-2" onClick={addBook}>Add</button>
-      </div>
-
-      <ul className="mt-4 space-y-2">
-        {books.map((book) => (
-          <li key={book.id} className="flex justify-between border p-2">
-            <span className={book.completed ? "line-through" : ""}>{book.title}</span>
-            <div>
-              <button onClick={() => markComplete(book.id, !book.completed)} className="text-green-500">✔</button>
-              <button onClick={() => deleteBook(book.id)} className="text-red-500 ml-2">✖</button>
+                {loading ? (
+                    <div className="text-center py-10">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+                        <p className="mt-4 text-gray-600">Loading ...</p>
+                    </div>
+                ) : books.length === 0 ? (
+                    <div className="text-center py-10 text-gray-500">
+                        <p>No books yet. Add some to get started!</p>
+                    </div>
+                ) : (
+                    <div className="flex flex-wrap gap-6">
+                        {books.map((book) => (
+                            <div
+                                key={book.id}
+                                className="shadow-md rounded-lg p-4 bg-white w-full md:w-[48%] lg:w-[30%]"
+                            >
+                                <h2 className=" text-[16.2px] font-semibold text-gray-800">
+                                    {book.title}
+                                </h2>
+                                <p className="text-gray-500 text-sm mb-3">
+                                    {book.description || "No description"}
+                                </p>
+                                <div className="flex items-center justify-between">
+                                    <span
+                                        className={`py-[2px] text-[13px] w-[90px] rounded-xl flex items-center justify-center gap-1 ${
+                                            book.completed
+                                                ? "bg-green-100 text-green-600 border border-green-300"
+                                                : "bg-red-100 text-red-600 border border-red-300"
+                                        }`}
+                                    >
+                                        {book.completed
+                                            ? "Completed"
+                                            : "Incomplete"}
+                                    </span>
+                                    <div className="flex space-x-3">
+                                        <button
+                                            onClick={() => handleToggleComplete(book.id, book.completed)}
+                                            className="px-3 py-1.5 bg-blue-400 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                                        >
+                                            <Edit size={16} />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteBook(book.id)}
+                                            className="px-3 py-1.5 bg-red-400 text-white rounded-lg hover:bg-red-600 transition-colors"
+                                        >
+                                            <Trash size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
-          </li>
-        ))}
-      </ul>
-    </main>
-  );
+        </div>
+    );
 }
