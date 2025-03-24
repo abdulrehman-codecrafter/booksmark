@@ -3,6 +3,7 @@ import { useBooksContext } from "@/contexts/booksContext";
 import AddBookDialog from "@/components/add-book-dialog";
 import { Trash, Edit, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { UserButton } from "@clerk/nextjs";
 
 export default function Home() {
     const { books, loading, toggleComplete, deleteBook } = useBooksContext();
@@ -28,9 +29,12 @@ export default function Home() {
                 </div>
             )}
             <div className="max-w-7xl mx-auto">
+                <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold text-gray-800 mb-6">
                     Your Reading List
                 </h1>
+                <UserButton showName={true} />
+                </div>
 
                 <div className="mb-6">
                     <AddBookDialog />
