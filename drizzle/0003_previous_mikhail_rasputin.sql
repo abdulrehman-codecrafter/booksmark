@@ -1,0 +1,1 @@
+ALTER TABLE "books" ADD CONSTRAINT "books_userId_unique" UNIQUE("userId");

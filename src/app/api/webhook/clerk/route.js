@@ -49,14 +49,15 @@ export async function POST(req) {
 
   try {
     await db.insert(usersTable).values({
-      clerkId: id,
+      // Use Clerk ID as the primary key (user id)
+      id: id,
       email: email_addresses[0].email_address,
       firstName: first_name || null,
       lastName: last_name || null,
       imgUrl: image_url || null,
     });
 
-    console.log(`User created: ${id}`);
+    console.log(`User created with Clerk ID as primary key: ${id}`);
   } catch (err) {
     console.error("Database error:", err);
     return new NextResponse("Database sync error", { status: 500 });
