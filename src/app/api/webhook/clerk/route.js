@@ -1,7 +1,7 @@
 import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { db } from "../../../../db/index";
-import { usersTable } from "@/db/schema";
+import { usersTable } from "../../../../db/schema";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
